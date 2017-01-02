@@ -3,15 +3,15 @@ Cos
 
 Visualize the coverage as Pull-Request checks.
 
-[![Travis](https://img.shields.io/travis/linyows/cos.svg?style=flat-square)][travis]
-[![GitHub release](http://img.shields.io/github/release/linyows/cos.svg?style=flat-square)][release]
+[![Travis](https://img.shields.io/travis/linyows/pipeline.svg?style=flat-square)][travis]
+[![GitHub release](http://img.shields.io/github/release/linyows/pipeline.svg?style=flat-square)][release]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godocs]
 
-[travis]: https://travis-ci.org/linyows/cos
-[release]: https://github.com/linyows/cos/releases
-[license]: https://github.com/linyows/cos/blob/master/LICENSE
-[godocs]: http://godoc.org/github.com/linyows/cos
+[travis]: https://travis-ci.org/linyows/pipeline
+[release]: https://github.com/linyows/pipeline/releases
+[license]: https://github.com/linyows/pipeline/blob/master/LICENSE
+[godocs]: http://godoc.org/github.com/linyows/pipeline
 
 Description
 -----------
@@ -24,20 +24,20 @@ Usage
 ### SimpleCov and Rspec
 
 ```sh
-$ cos -p "cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'" bin/rspec
+$ pipeline -p "cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'" bin/rspec
 ```
 
 ### PHP CodeCoverage and PHPUnit
 
 ```sh
-$ cos -p "cat coverage/report.txt | grep -i lines | awk '{print $2}' | sed 's/%//'" vendor/bin/phpunit
+$ pipeline -p "cat coverage/report.txt | grep -i lines | awk '{print $2}' | sed 's/%//'" vendor/bin/phpunit
 ```
 
 Config File
 -----------
 
 ```sh
-cat << EOF > .cos
+cat << EOF > .pipeline
 test = "bin/rspec"
 percent = "cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'"
 github_token = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -51,13 +51,13 @@ Install
 To install, use `go get`:
 
 ```sh
-$ go get -d github.com/linyows/cos
+$ go get -d github.com/linyows/pipeline
 ```
 
 Contribution
 ------------
 
-1. Fork ([https://github.com/linyows/cos/fork](https://github.com/linyows/cos/fork))
+1. Fork ([https://github.com/linyows/pipeline/fork](https://github.com/linyows/pipeline/fork))
 1. Create a feature branch
 1. Commit your changes
 1. Rebase your local changes against the master branch

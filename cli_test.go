@@ -10,14 +10,14 @@ import (
 func TestRun_versionFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
-	args := strings.Split("./cos -version", " ")
+	args := strings.Split("./pipeline -version", " ")
 
 	status := cli.Run(args)
 	if status != ExitCodeOK {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
 
-	expected := fmt.Sprintf("cos version %s", Version)
+	expected := fmt.Sprintf("pipeline version %s", Version)
 	if !strings.Contains(errStream.String(), expected) {
 		t.Errorf("expected %q to eq %q", errStream.String(), expected)
 	}
@@ -26,7 +26,7 @@ func TestRun_versionFlag(t *testing.T) {
 func TestRun_testFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
-	args := strings.Split("./cos -test", " ")
+	args := strings.Split("./pipeline -test", " ")
 
 	status := cli.Run(args)
 	_ = status
@@ -35,7 +35,7 @@ func TestRun_testFlag(t *testing.T) {
 func TestRun_percentFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
-	args := strings.Split("./cos -percent", " ")
+	args := strings.Split("./pipeline -percent", " ")
 
 	status := cli.Run(args)
 	_ = status
@@ -44,7 +44,7 @@ func TestRun_percentFlag(t *testing.T) {
 func TestRun_baseFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
-	args := strings.Split("./cos -base", " ")
+	args := strings.Split("./pipeline -base", " ")
 
 	status := cli.Run(args)
 	_ = status
@@ -53,7 +53,7 @@ func TestRun_baseFlag(t *testing.T) {
 func TestRun_formatFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
-	args := strings.Split("./cos -format", " ")
+	args := strings.Split("./pipeline -format", " ")
 
 	status := cli.Run(args)
 	_ = status
@@ -62,7 +62,7 @@ func TestRun_formatFlag(t *testing.T) {
 func TestRun_apiFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
-	args := strings.Split("./cos -api", " ")
+	args := strings.Split("./pipeline -api", " ")
 
 	status := cli.Run(args)
 	_ = status
@@ -71,7 +71,7 @@ func TestRun_apiFlag(t *testing.T) {
 func TestRun_commentFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
-	args := strings.Split("./cos -comment", " ")
+	args := strings.Split("./pipeline -comment", " ")
 
 	status := cli.Run(args)
 	_ = status
@@ -80,7 +80,7 @@ func TestRun_commentFlag(t *testing.T) {
 func TestRun_verboseFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{outStream: outStream, errStream: errStream}
-	args := strings.Split("./cos -verbose", " ")
+	args := strings.Split("./pipeline -verbose", " ")
 
 	status := cli.Run(args)
 	_ = status

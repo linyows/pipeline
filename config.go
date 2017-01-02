@@ -31,7 +31,7 @@ func DefaultConfig() *Config {
 		TestCMD:        "",
 		CoverageCMD:    "",
 		BaseBranch:     "master",
-		StatusName:     "coverage/cos",
+		StatusName:     "coverage/pipeline",
 		StatusOK:       ":cake: Coverage increased (+<diff>%) to <coverage>%",
 		StatusNG:       ":jack_o_lantern: Coverage decreased (-<diff>%) to <coverage>%",
 		StatusOKForNow: ":corn: Coverage remained the same at <diff>%",
@@ -39,7 +39,7 @@ func DefaultConfig() *Config {
 		AccessToken:    "",
 		Comment:        false,
 		Verbose:        false,
-		ConfigFile:     ".cos",
+		ConfigFile:     ".pipeline",
 	}
 }
 

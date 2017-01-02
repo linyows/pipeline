@@ -1,4 +1,4 @@
 package main
 
-const Name string = "cos"
+const Name string = "pipeline"
 const Version string = "0.1.0"
