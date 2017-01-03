@@ -1,7 +1,7 @@
-Cos
-===
+Pipeline
+========
 
-Visualize the coverage as Pull-Request checks.
+This tool is pipeline framework.
 
 [![Travis](https://img.shields.io/travis/linyows/pipeline.svg?style=flat-square)][travis]
 [![GitHub release](http://img.shields.io/github/release/linyows/pipeline.svg?style=flat-square)][release]
