@@ -13,8 +13,8 @@ const (
 	ExitCodeError int = 1 + iota
 )
 
-// Ops structure
-type Ops struct {
+// Opt structure
+type Opt struct {
 	TestCMD     string
 	CoverageCMD string
 	BaseBranch  string
@@ -31,7 +31,7 @@ type Ops struct {
 // CLI is the command line object
 type CLI struct {
 	outStream, errStream io.Writer
-	ops                  Ops
+	opt                  Opt
 }
 
 // Run invokes the CLI with the given arguments.
@@ -41,44 +41,44 @@ func (cli *CLI) Run(args []string) int {
 
 	c := DefaultConfig()
 
-	flags.StringVar(&cli.ops.TestCMD, "test-command", c.TestCMD, "Command to the Test")
-	flags.StringVar(&cli.ops.TestCMD, "t", c.TestCMD, "Command to the Test(Short)")
+	flags.StringVar(&cli.opt.TestCMD, "test-command", c.TestCMD, "Command to the Test")
+	flags.StringVar(&cli.opt.TestCMD, "t", c.TestCMD, "Command to the Test(Short)")
 
-	flags.StringVar(&cli.ops.CoverageCMD, "coverage-percentage-command", c.CoverageCMD, "Command to get the Coverage Percentage")
-	flags.StringVar(&cli.ops.CoverageCMD, "p", c.CoverageCMD, "Command to get the Coverage Percentage(Short)")
+	flags.StringVar(&cli.opt.CoverageCMD, "coverage-percentage-command", c.CoverageCMD, "Command to get the Coverage Percentage")
+	flags.StringVar(&cli.opt.CoverageCMD, "p", c.CoverageCMD, "Command to get the Coverage Percentage(Short)")
 
-	flags.StringVar(&cli.ops.BaseBranch, "base-branch", c.BaseBranch, "Base Branch")
-	flags.StringVar(&cli.ops.BaseBranch, "b", c.BaseBranch, "Base Branch(Short)")
+	flags.StringVar(&cli.opt.BaseBranch, "base-branch", c.BaseBranch, "Base Branch")
+	flags.StringVar(&cli.opt.BaseBranch, "b", c.BaseBranch, "Base Branch(Short)")
 
-	flags.StringVar(&cli.ops.StatusName, "status-name", c.StatusName, "Status Name")
-	flags.StringVar(&cli.ops.StatusName, "n", c.StatusName, "Status Name(Short)")
+	flags.StringVar(&cli.opt.StatusName, "status-name", c.StatusName, "Status Name")
+	flags.StringVar(&cli.opt.StatusName, "n", c.StatusName, "Status Name(Short)")
 
-	flags.StringVar(&cli.ops.StatusOK, "status-ok", c.StatusOK, "Status Format for OK")
-	flags.StringVar(&cli.ops.StatusNG, "status-ng", c.StatusNG, "Status Format for NG")
+	flags.StringVar(&cli.opt.StatusOK, "status-ok", c.StatusOK, "Status Format for OK")
+	flags.StringVar(&cli.opt.StatusNG, "status-ng", c.StatusNG, "Status Format for NG")
 
-	flags.StringVar(&cli.ops.APIEndpoint, "api-endpoint", c.APIEndpoint, "API Endpoint")
-	flags.StringVar(&cli.ops.APIEndpoint, "a", c.APIEndpoint, "API Endpoint(Short)")
+	flags.StringVar(&cli.opt.APIEndpoint, "api-endpoint", c.APIEndpoint, "API Endpoint")
+	flags.StringVar(&cli.opt.APIEndpoint, "a", c.APIEndpoint, "API Endpoint(Short)")
 
-	flags.StringVar(&cli.ops.AccessToken, "access-token", c.AccessToken, "Access Token")
-	flags.StringVar(&cli.ops.AccessToken, "s", c.AccessToken, "Access Token(Short)")
+	flags.StringVar(&cli.opt.AccessToken, "access-token", c.AccessToken, "Access Token")
+	flags.StringVar(&cli.opt.AccessToken, "s", c.AccessToken, "Access Token(Short)")
 
-	flags.BoolVar(&cli.ops.Comment, "comment", false, "Comment Coverage to the Pull-Request")
-	flags.BoolVar(&cli.ops.Comment, "c", false, "(Short)")
+	flags.BoolVar(&cli.opt.Comment, "comment", false, "Comment Coverage to the Pull-Request")
+	flags.BoolVar(&cli.opt.Comment, "c", false, "(Short)")
 
-	flags.BoolVar(&cli.ops.Verbose, "verbose", false, "Print verbose log.")
-	flags.BoolVar(&cli.ops.Version, "version", false, "Print version information and quit.")
+	flags.BoolVar(&cli.opt.Verbose, "verbose", false, "Print verbose log.")
+	flags.BoolVar(&cli.opt.Version, "version", false, "Print version information and quit.")
 
 	if err := flags.Parse(args[1:]); err != nil {
 		return ExitCodeError
 	}
 
-	if cli.ops.Version {
+	if cli.opt.Version {
 		fmt.Fprintf(cli.errStream, "%s version %s\n", Name, Version)
 		return ExitCodeOK
 	}
 
 	if testCMD := flags.Args(); len(testCMD) != 0 {
-		cli.ops.TestCMD = strings.Join(testCMD, " ")
+		cli.opt.TestCMD = strings.Join(testCMD, " ")
 	}
 
 	return cli.Cos()
@@ -86,7 +86,7 @@ func (cli *CLI) Run(args []string) int {
 
 // out
 func (cli *CLI) out(format string, a ...interface{}) {
-	if cli.ops.Verbose {
+	if cli.opt.Verbose {
 		fmt.Fprintln(cli.outStream, fmt.Sprintf(format, a...))
 	}
 }
@@ -99,7 +99,7 @@ func (cli *CLI) err(format string, a ...interface{}) {
 // Cos returns exit status
 func (cli *CLI) Cos() int {
 	c := DefaultConfig()
-	c.Set(cli.ops)
+	c.Set(cli.opt)
 
 	if IsFileExist(c.ConfigFile) {
 		config, err := LoadConfig(c.ConfigFile)

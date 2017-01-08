@@ -101,8 +101,8 @@ func (c *config) Merge(otherConfig *Config) *Config {
 	return c
 }
 
-// Set sets from Ops
-func (c *Config) Set(o Ops) *Config {
+// Set sets from Opt
+func (c *Config) Set(o Opt) *Config {
 	if o.TestCMD != "" {
 		c.TestCMD = o.TestCMD
 	}
