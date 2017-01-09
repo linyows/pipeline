@@ -15,7 +15,6 @@ const (
 
 // Opt structure
 type Opt struct {
-	TestCMD     string
 	CoverageCMD string
 	BaseBranch  string
 	StatusName  string
@@ -40,9 +39,6 @@ func (cli *CLI) Run(args []string) int {
 	flags.SetOutput(cli.errStream)
 
 	c := DefaultConfig()
-
-	flags.StringVar(&cli.opt.TestCMD, "test-command", c.TestCMD, "Command to the Test")
-	flags.StringVar(&cli.opt.TestCMD, "t", c.TestCMD, "Command to the Test(Short)")
 
 	flags.StringVar(&cli.opt.CoverageCMD, "coverage-percentage-command", c.CoverageCMD, "Command to get the Coverage Percentage")
 	flags.StringVar(&cli.opt.CoverageCMD, "p", c.CoverageCMD, "Command to get the Coverage Percentage(Short)")
@@ -75,10 +71,6 @@ func (cli *CLI) Run(args []string) int {
 	if cli.opt.Version {
 		fmt.Fprintf(cli.errStream, "%s version %s\n", Name, Version)
 		return ExitCodeOK
-	}
-
-	if testCMD := flags.Args(); len(testCMD) != 0 {
-		cli.opt.TestCMD = strings.Join(testCMD, " ")
 	}
 
 	return cli.Cos()
