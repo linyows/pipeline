@@ -15,7 +15,6 @@ const (
 
 // Opt structure
 type Opt struct {
-	CoverageCMD string
 	BaseBranch  string
 	StatusName  string
 	StatusOK    string
@@ -39,9 +38,6 @@ func (cli *CLI) Run(args []string) int {
 	flags.SetOutput(cli.errStream)
 
 	c := DefaultConfig()
-
-	flags.StringVar(&cli.opt.CoverageCMD, "coverage-percentage-command", c.CoverageCMD, "Command to get the Coverage Percentage")
-	flags.StringVar(&cli.opt.CoverageCMD, "p", c.CoverageCMD, "Command to get the Coverage Percentage(Short)")
 
 	flags.StringVar(&cli.opt.BaseBranch, "base-branch", c.BaseBranch, "Base Branch")
 	flags.StringVar(&cli.opt.BaseBranch, "b", c.BaseBranch, "Base Branch(Short)")
