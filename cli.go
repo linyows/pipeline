@@ -15,7 +15,6 @@ const (
 
 // Opt structure
 type Opt struct {
-	BaseBranch  string
 	StatusName  string
 	StatusOK    string
 	StatusNG    string
@@ -38,9 +37,6 @@ func (cli *CLI) Run(args []string) int {
 	flags.SetOutput(cli.errStream)
 
 	c := DefaultConfig()
-
-	flags.StringVar(&cli.opt.BaseBranch, "base-branch", c.BaseBranch, "Base Branch")
-	flags.StringVar(&cli.opt.BaseBranch, "b", c.BaseBranch, "Base Branch(Short)")
 
 	flags.StringVar(&cli.opt.StatusName, "status-name", c.StatusName, "Status Name")
 	flags.StringVar(&cli.opt.StatusName, "n", c.StatusName, "Status Name(Short)")

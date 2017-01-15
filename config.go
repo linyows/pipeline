@@ -11,7 +11,6 @@ import (
 
 // Config is the structure of the configuration for CLI.
 type Config struct {
-	BaseBranch     string
 	StatusName     string
 	StatusOK       string
 	StatusNG       string
@@ -26,7 +25,6 @@ type Config struct {
 // DefaultConfig returns default structure.
 func DefaultConfig() *Config {
 	return &Config{
-		BaseBranch:     "master",
 		StatusName:     "coverage/pipeline",
 		StatusOK:       ":cake: Coverage increased (+<diff>%) to <coverage>%",
 		StatusNG:       ":jack_o_lantern: Coverage decreased (-<diff>%) to <coverage>%",
@@ -64,9 +62,6 @@ func LoadConfig(path string) (*Config, error) {
 
 // Merge merges other configurations it self.
 func (c *config) Merge(otherConfig *Config) *Config {
-	if otherConfig.BaseBranch != "" {
-		c.BaseBranch = otherConfig.BaseBranch
-	}
 	if otherConfig.StatusName != "" {
 		c.StatusName = otherConfig.StatusName
 	}
@@ -93,9 +88,6 @@ func (c *config) Merge(otherConfig *Config) *Config {
 
 // Set sets from Opt
 func (c *Config) Set(o Opt) *Config {
-	if o.BaseBranch != "" {
-		c.BaseBranch = o.BaseBranch
-	}
 	if o.StatusName != "" {
 		c.StatusName = o.StatusName
 	}
