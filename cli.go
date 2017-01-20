@@ -15,7 +15,6 @@ const (
 
 // Opt structure
 type Opt struct {
-	StatusName  string
 	StatusOK    string
 	StatusNG    string
 	APIEndpoint string
@@ -37,9 +36,6 @@ func (cli *CLI) Run(args []string) int {
 	flags.SetOutput(cli.errStream)
 
 	c := DefaultConfig()
-
-	flags.StringVar(&cli.opt.StatusName, "status-name", c.StatusName, "Status Name")
-	flags.StringVar(&cli.opt.StatusName, "n", c.StatusName, "Status Name(Short)")
 
 	flags.StringVar(&cli.opt.StatusOK, "status-ok", c.StatusOK, "Status Format for OK")
 	flags.StringVar(&cli.opt.StatusNG, "status-ng", c.StatusNG, "Status Format for NG")
