@@ -11,8 +11,6 @@ import (
 
 // Config is the structure of the configuration for CLI.
 type Config struct {
-	StatusOK       string
-	StatusNG       string
 	StatusOKForNow string
 	APIEndpoint    string
 	AccessToken    string
@@ -24,8 +22,6 @@ type Config struct {
 // DefaultConfig returns default structure.
 func DefaultConfig() *Config {
 	return &Config{
-		StatusOK:       ":cake: Coverage increased (+<diff>%) to <coverage>%",
-		StatusNG:       ":jack_o_lantern: Coverage decreased (-<diff>%) to <coverage>%",
 		StatusOKForNow: ":corn: Coverage remained the same at <diff>%",
 		APIEndpoint:    "https://api.github.com/",
 		AccessToken:    "",
@@ -60,14 +56,8 @@ func LoadConfig(path string) (*Config, error) {
 
 // Merge merges other configurations it self.
 func (c *config) Merge(otherConfig *Config) *Config {
-	if otherConfig.StatusOK != "" {
-		c.StatusOK = otherConfig.StatusOK
-	}
 	if otherConfig.StatusOKForNow != "" {
 		c.StatusOKForNow = otherConfig.StatusOKForNow
-	}
-	if otherConfig.StatusNG != "" {
-		c.StatusNG = otherConfig.StatusNG
 	}
 	if otherConfig.APIEndpoint != "" {
 		c.APIEndpoint = otherConfig.APIEndpoint
@@ -83,12 +73,6 @@ func (c *config) Merge(otherConfig *Config) *Config {
 
 // Set sets from Opt
 func (c *Config) Set(o Opt) *Config {
-	if o.StatusOK != "" {
-		c.StatusOK = o.StatusOK
-	}
-	if o.StatusNG != "" {
-		c.StatusNG = o.StatusNG
-	}
 	if o.APIEndpoint != "" {
 		c.APIEndpoint = o.APIEndpoint
 	}
