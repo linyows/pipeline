@@ -15,7 +15,6 @@ const (
 
 // Opt structure
 type Opt struct {
-	APIEndpoint string
 	AccessToken string
 	Comment     bool
 	Verbose     bool
@@ -34,9 +33,6 @@ func (cli *CLI) Run(args []string) int {
 	flags.SetOutput(cli.errStream)
 
 	c := DefaultConfig()
-
-	flags.StringVar(&cli.opt.APIEndpoint, "api-endpoint", c.APIEndpoint, "API Endpoint")
-	flags.StringVar(&cli.opt.APIEndpoint, "a", c.APIEndpoint, "API Endpoint(Short)")
 
 	flags.StringVar(&cli.opt.AccessToken, "access-token", c.AccessToken, "Access Token")
 	flags.StringVar(&cli.opt.AccessToken, "s", c.AccessToken, "Access Token(Short)")

@@ -12,7 +12,6 @@ import (
 // Config is the structure of the configuration for CLI.
 type Config struct {
 	StatusOKForNow string
-	APIEndpoint    string
 	AccessToken    string
 	Comment        bool
 	Verbose        bool
@@ -23,7 +22,6 @@ type Config struct {
 func DefaultConfig() *Config {
 	return &Config{
 		StatusOKForNow: ":corn: Coverage remained the same at <diff>%",
-		APIEndpoint:    "https://api.github.com/",
 		AccessToken:    "",
 		Comment:        false,
 		Verbose:        false,
@@ -59,9 +57,6 @@ func (c *config) Merge(otherConfig *Config) *Config {
 	if otherConfig.StatusOKForNow != "" {
 		c.StatusOKForNow = otherConfig.StatusOKForNow
 	}
-	if otherConfig.APIEndpoint != "" {
-		c.APIEndpoint = otherConfig.APIEndpoint
-	}
 	if otherConfig.AccessToken != "" {
 		c.AccessToken = otherConfig.AccessToken
 	}
@@ -73,9 +68,6 @@ func (c *config) Merge(otherConfig *Config) *Config {
 
 // Set sets from Opt
 func (c *Config) Set(o Opt) *Config {
-	if o.APIEndpoint != "" {
-		c.APIEndpoint = o.APIEndpoint
-	}
 	if o.AccessToken != "" {
 		c.AccessToken = o.AccessToken
 	}
