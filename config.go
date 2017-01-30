@@ -12,7 +12,6 @@ import (
 // Config is the structure of the configuration for CLI.
 type Config struct {
 	StatusOKForNow string
-	AccessToken    string
 	Comment        bool
 	Verbose        bool
 	ConfigFile     string
@@ -22,7 +21,6 @@ type Config struct {
 func DefaultConfig() *Config {
 	return &Config{
 		StatusOKForNow: ":corn: Coverage remained the same at <diff>%",
-		AccessToken:    "",
 		Comment:        false,
 		Verbose:        false,
 		ConfigFile:     ".pipeline",
@@ -57,9 +55,6 @@ func (c *config) Merge(otherConfig *Config) *Config {
 	if otherConfig.StatusOKForNow != "" {
 		c.StatusOKForNow = otherConfig.StatusOKForNow
 	}
-	if otherConfig.AccessToken != "" {
-		c.AccessToken = otherConfig.AccessToken
-	}
 	c.Verbose = otherConfig.Verbose
 	c.Comment = otherConfig.Comment
 
@@ -68,9 +63,6 @@ func (c *config) Merge(otherConfig *Config) *Config {
 
 // Set sets from Opt
 func (c *Config) Set(o Opt) *Config {
-	if o.AccessToken != "" {
-		c.AccessToken = o.AccessToken
-	}
 	c.Verbose = o.Verbose
 	c.Comment = o.Comment
 
@@ -80,8 +72,5 @@ func (c *Config) Set(o Opt) *Config {
 // SetFromEnv sets from env variables
 func (c *Config) SetFromEnv() *Config {
 	token := os.Getenv(strings.ToUpper(Name) + "_ACCESS_TOKEN")
-	if token != "" {
-		c.AccessToken = token
-	}
 	return c
 }

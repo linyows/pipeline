@@ -15,7 +15,6 @@ const (
 
 // Opt structure
 type Opt struct {
-	AccessToken string
 	Comment     bool
 	Verbose     bool
 	Version     bool
@@ -33,9 +32,6 @@ func (cli *CLI) Run(args []string) int {
 	flags.SetOutput(cli.errStream)
 
 	c := DefaultConfig()
-
-	flags.StringVar(&cli.opt.AccessToken, "access-token", c.AccessToken, "Access Token")
-	flags.StringVar(&cli.opt.AccessToken, "s", c.AccessToken, "Access Token(Short)")
 
 	flags.BoolVar(&cli.opt.Comment, "comment", false, "Comment Coverage to the Pull-Request")
 	flags.BoolVar(&cli.opt.Comment, "c", false, "(Short)")
