@@ -12,7 +12,6 @@ import (
 // Config is the structure of the configuration for CLI.
 type Config struct {
 	StatusOKForNow string
-	Comment        bool
 	Verbose        bool
 	ConfigFile     string
 }
@@ -21,7 +20,6 @@ type Config struct {
 func DefaultConfig() *Config {
 	return &Config{
 		StatusOKForNow: ":corn: Coverage remained the same at <diff>%",
-		Comment:        false,
 		Verbose:        false,
 		ConfigFile:     ".pipeline",
 	}
@@ -56,7 +54,6 @@ func (c *config) Merge(otherConfig *Config) *Config {
 		c.StatusOKForNow = otherConfig.StatusOKForNow
 	}
 	c.Verbose = otherConfig.Verbose
-	c.Comment = otherConfig.Comment
 
 	return c
 }
@@ -64,7 +61,6 @@ func (c *config) Merge(otherConfig *Config) *Config {
 // Set sets from Opt
 func (c *Config) Set(o Opt) *Config {
 	c.Verbose = o.Verbose
-	c.Comment = o.Comment
 
 	return c
 }
