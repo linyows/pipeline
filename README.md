@@ -13,11 +13,6 @@ This tool is pipeline framework.
 [license]: https://github.com/linyows/pipeline/blob/master/LICENSE
 [godocs]: http://godoc.org/github.com/linyows/pipeline
 
-Description
------------
-
-The Cos creates commit status for coverage.
-
 Usage
 -----
 
