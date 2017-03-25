@@ -13,6 +13,14 @@ This tool is pipeline framework.
 [license]: https://github.com/linyows/pipeline/blob/master/LICENSE
 [godocs]: http://godoc.org/github.com/linyows/pipeline
 
+Order of Pipeline
+-----------------
+
+1. Setup
+1. Line (In parallel)
+1. Bond
+1. Teadown
+
 Usage
 -----
 
