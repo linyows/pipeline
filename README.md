@@ -21,6 +21,13 @@ Order of Pipeline
 1. Bond
 1. Teadown
 
+Built-in Plugins
+----------------
+
+- Github Comment
+- Github Pull-Request
+- Slack Notification
+
 Usage
 -----
 
