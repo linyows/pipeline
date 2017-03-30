@@ -1,108 +1,77 @@
 package pipeline
 
 import (
-	"bufio"
-	"flag"
 	"fmt"
 	"io"
 	"os"
-	"strings"
-	"text/template"
+
+	flag "github.com/linyows/mflag"
 )
 
-// A Command is an implementation of a pipeline command
-type Command struct {
-	Run func(args []string) int
-	UsageLine string
-	Short string
-	Long string
-	Flag flag.FlagSet
+// Exit codes are int values that represent an exit code for a particular error.
+const (
+	ExitCodeOK    int = 0
+	ExitCodeError int = 1 + iota
+)
+
+// Options is structure
+type Options struct {
+	Config  string
+	Version bool
 }
 
-// Name returns the command"s name: the first word in the usage line.
-func (c *Command) Name() string {
-	name := c.UsageLine
-	i := strings.Index(name, " ")
-	if i >= 0 {
-		name = name[:i]
-	}
-	return name
-}
+var usageText = `
+Usage: pipeline [options] [args]
 
-// Usage returns usage
-func (c *Command) Usage() {
-	fmt.Fprintf(os.Stderr, "usage: %s\n\n", c.UsageLine)
-	fmt.Fprintf(os.Stderr, "%s\n", strings.TrimSpace(c.Long))
-	os.Exit(2)
-}
+Options:`
 
-// Commands lists the available commands and help topics.
-var commands = []*Command{
-	cmdInit,
-	cmdStart,
-	cmdList,
-}
-
-var usageTemplate = `
-Usage: pipeline [options] CMD
-
-Commands:{{range .}}
-  {{.Name | printf "%-11s"}} {{.Short}}{{end}}
-
-Options:
-  -c,  --config
-	-V,  --verbose
-
-Use "pipeline help [command]" for more information about a command.
+var exampleText = `
+Examples:
+  $ pipeline --config /etc/pipeline.conf
 
 `
 
-var helpTemplate = `usage: pipeline {{.UsageLine}}
+// Pipeline is structure
+type Pipeline struct {
+	outStream, errStream io.Writer
+	inStream             *os.File
+}
 
-{{.Long | trim}}
-`
-
-// tmpl executes the given template text on data, writing the result to w.
-func tmpl(w io.Writer, text string, data interface{}) {
-	t := template.New("top")
-	t.Funcs(template.FuncMap{"trim": strings.TrimSpace})
-	template.Must(t.Parse(text))
-	if err := t.Execute(w, data); err != nil {
-		panic(err)
+// New for pipeline
+func New(stdin *os.File, stdout io.Writer, stderr io.Writer) *Pipeline {
+	return &Pipeline{
+		inStream:  stdin,
+		outStream: stdout,
+		errStream: stderr,
 	}
 }
 
-func printUsage(w io.Writer) {
-	bw := bufio.NewWriter(w)
-	tmpl(bw, usageTemplate, commands)
-	bw.Flush()
-}
+// Run invokes the CLI with the given arguments.
+func (p *Pipeline) Run(args []string) int {
+	f := flag.NewFlagSet(Name, flag.ContinueOnError)
+	f.SetOutput(p.outStream)
 
-func usage() {
-	printUsage(os.Stderr)
-	os.Exit(2)
-}
-
-// Help implements the "help" command.
-func Help(args []string) {
-	if len(args) == 0 {
-		printUsage(os.Stdout)
-		return
-	}
-	if len(args) != 1 {
-		fmt.Fprintf(os.Stderr, "usage: pipeline help command\n\nToo many arguments given.\n")
-		os.Exit(2)
+	f.Usage = func() {
+		fmt.Fprintf(p.outStream, usageText)
+		f.PrintDefaults()
+		fmt.Fprint(p.outStream, exampleText)
 	}
 
-	arg := args[0]
+	var opt Options
 
-	for _, cmd := range commands {
-		if cmd.Name() == arg {
-			tmpl(os.Stdout, helpTemplate, cmd)
-			return
-		}
+	f.StringVar(&opt.Config, []string{"c", "-config"}, "/etc/pipeline.conf", "the path to the configuration file")
+	f.BoolVar(&opt.Version, []string{"v", "-version"}, false, "print the version and exit")
+
+	if err := f.Parse(args[1:]); err != nil {
+		return ExitCodeError
 	}
 
-	fmt.Fprintf(os.Stderr, "Unknown help topic %#q.  Run \"pipeline help\".\n", arg)
-	os.Exit(2)
+	//parsedArgs := f.Args()
+
+	if opt.Version {
+		fmt.Fprintf(p.outStream, "%s version %s\n", Name, Version)
+		return ExitCodeOK
+	}
+
+	return ExitCodeOK
 }
