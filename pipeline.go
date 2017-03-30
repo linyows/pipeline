@@ -1,11 +1,10 @@
-package main
+package pipeline
 
 import (
 	"bufio"
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strings"
 	"text/template"
@@ -13,21 +12,10 @@ import (
 
 // A Command is an implementation of a pipeline command
 type Command struct {
-	// Run runs the command.
-	// The args are the arguments after the command name.
 	Run func(args []string) int
-
-	// UsageLine is the one-line usage message.
-	// The first word in the line is taken to be the command name.
 	UsageLine string
-
-	// Short is the short description shown in the "pipeline help" output.
 	Short string
-
-	// Long is the long message shown in the "pipeline help <this-command>" output.
 	Long string
-
-	// Flag is a set of flags specific to this command.
 	Flag flag.FlagSet
 }
 
@@ -41,6 +29,7 @@ func (c *Command) Name() string {
 	return name
 }
 
+// Usage returns usage
 func (c *Command) Usage() {
 	fmt.Fprintf(os.Stderr, "usage: %s\n\n", c.UsageLine)
 	fmt.Fprintf(os.Stderr, "%s\n", strings.TrimSpace(c.Long))
@@ -48,42 +37,10 @@ func (c *Command) Usage() {
 }
 
 // Commands lists the available commands and help topics.
-// The order here is the order in which they are printed by "pipeline help".
 var commands = []*Command{
 	cmdInit,
 	cmdStart,
 	cmdList,
-}
-
-func main() {
-
-	flag.Usage = usage
-	flag.Parse()
-	log.SetFlags(0)
-
-	args := flag.Args()
-	if len(args) < 1 {
-		usage()
-	}
-
-	if args[0] == "help" {
-		help(args[1:])
-		return
-	}
-
-	for _, cmd := range commands {
-		if cmd.Name() == args[0] {
-			cmd.Flag.Usage = func() { cmd.Usage() }
-
-			cmd.Flag.Parse(args[1:])
-			args = cmd.Flag.Args()
-
-			os.Exit(cmd.Run(args))
-		}
-	}
-
-	fmt.Fprintf(os.Stderr, "pipeline: unknown subcommand %q\nRun \" pipeline help\" for usage.\n", args[0])
-	os.Exit(2)
 }
 
 var usageTemplate = `
@@ -93,8 +50,8 @@ Commands:{{range .}}
   {{.Name | printf "%-11s"}} {{.Short}}{{end}}
 
 Options:
-  -c, --config
-	    --verbose
+  -c,  --config
+	-V,  --verbose
 
 Use "pipeline help [command]" for more information about a command.
 
@@ -126,16 +83,15 @@ func usage() {
 	os.Exit(2)
 }
 
-// help implements the "help" command.
-func help(args []string) {
+// Help implements the "help" command.
+func Help(args []string) {
 	if len(args) == 0 {
 		printUsage(os.Stdout)
-		// not exit 2: succeeded at "pipeline help".
 		return
 	}
 	if len(args) != 1 {
 		fmt.Fprintf(os.Stderr, "usage: pipeline help command\n\nToo many arguments given.\n")
-		os.Exit(2) // failed at "pipeline help"
+		os.Exit(2)
 	}
 
 	arg := args[0]
@@ -143,11 +99,10 @@ func help(args []string) {
 	for _, cmd := range commands {
 		if cmd.Name() == arg {
 			tmpl(os.Stdout, helpTemplate, cmd)
-			// not exit 2: succeeded at "pipeline help cmd".
 			return
 		}
 	}
 
 	fmt.Fprintf(os.Stderr, "Unknown help topic %#q.  Run \"pipeline help\".\n", arg)
-	os.Exit(2) // failed at "pipeline help cmd"
+	os.Exit(2)
 }
