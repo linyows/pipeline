@@ -21,6 +21,10 @@ type Options struct {
 }
 
 var usageText = `
+╔═╗╦╔═╗╔═╗╦  ╦╔╗╔╔═╗
+╠═╝║╠═╝║╣ ║  ║║║║║╣
+╩  ╩╩  ╚═╝╩═╝╩╝╚╝╚═╝
+
 Usage: pipeline [options] [args]
 
 Options:`
@@ -73,5 +77,6 @@ func (p *Pipeline) Run(args []string) int {
 		return ExitCodeOK
 	}
 
+	f.Usage()
 	return ExitCodeOK
 }
