@@ -8,8 +8,7 @@ matrix:
     - os: osx
       go: 1.8.x
 script:
-  - make test
-  - make cover
+  - make ci
 after_script:
   - goveralls -coverprofile=coverage.out
 notifications:
