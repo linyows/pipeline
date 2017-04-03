@@ -27,7 +27,7 @@ test:
 	go test -race $(TEST)
 
 cover:
-	gotestcover -v -covermode=count -coverprofile=coverage.out -parallelpackages=4 ./...
+	gotestcover -v -covermode=count -coverprofile=coverage.out -parallelpackages=4 $(TEST)
 
 bin: depsdev
 	@sh -c "'$(CURDIR)/scripts/build.sh' $(NAME)"
