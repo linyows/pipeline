@@ -1,0 +1,7 @@
+{
+    "dependencies": {
+        "github.com/linyows/mflag": {
+            "branch": "master"
+        }
+    }
+}
