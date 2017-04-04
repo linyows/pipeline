@@ -40,7 +40,7 @@ Options:`
 
 var exampleText = `
 Examples:
-  $ pipeline --config /etc/pipeline.conf
+  $ pipeline --config /etc/pipeline.yml
 
 `
 
@@ -66,7 +66,7 @@ func (c *CLI) Run(args []string) int {
 
 	var opt Options
 
-	f.StringVar(&opt.Config, []string{"c", "-config"}, "/etc/pipeline.conf", "the path to the configuration file")
+	f.StringVar(&opt.Config, []string{"c", "-config"}, "/etc/pipeline.yml", "the path to the configuration file")
 	f.BoolVar(&opt.Version, []string{"v", "-version"}, false, "print the version and exit")
 
 	if err := f.Parse(args[1:]); err != nil {
