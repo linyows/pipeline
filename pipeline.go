@@ -48,7 +48,7 @@ type Teadown struct {
 func New() *Pipeline {
 	return &Pipeline{
 		config: ".pipeline.yml",
-		data:   nil,
+		data:   "",
 	}
 }
 
@@ -71,19 +71,19 @@ func (p *Pipeline) LoadConfig() error {
 		return err
 	}
 	s := Setup{}
-	if err := yaml.Unmarshal(c, &s); err == nil {
+	if err := yaml.Unmarshal(data, &s); err == nil {
 		return err
 	}
 	t := Tasks{}
-	if err := yaml.Unmarshal(c, &t); err == nil {
+	if err := yaml.Unmarshal(data, &t); err == nil {
 		return err
 	}
 	b := Bond{}
-	if err := yaml.Unmarshal(c, &b); err == nil {
+	if err := yaml.Unmarshal(data, &b); err == nil {
 		return err
 	}
 	d := Teadown{}
-	if err := yaml.Unmarshal(c, &d); err == nil {
+	if err := yaml.Unmarshal(data, &d); err == nil {
 		return err
 	}
 
