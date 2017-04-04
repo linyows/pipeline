@@ -27,11 +27,13 @@ const escape = "\x1b"
 var blue = fmt.Sprintf("%s[%sm", escape, "1;34")
 var clear = fmt.Sprintf("%s[%sm", escape, "0")
 
-var usageText = `
+var logo = `
 ╔═╗╦╔═╗╔═╗╦  ╦╔╗╔╔═╗
 ╠═╝║╠═╝║╣ ║  ║║║║║╣
 ╩  ╩╩  ╚═╝╩═╝╩╝╚╝╚═╝
+`
 
+var usageText = `
 Usage: pipeline [options] [args]
 
 Options:`
@@ -54,6 +56,9 @@ func (c *CLI) Run(args []string) int {
 	f.SetOutput(c.outStream)
 
 	f.Usage = func() {
+		fmt.Fprintf(c.outStream, blue)
+		fmt.Fprintf(c.outStream, logo)
+		fmt.Fprintf(c.outStream, clear)
 		fmt.Fprintf(c.outStream, usageText)
 		f.PrintDefaults()
 		fmt.Fprint(c.outStream, exampleText)
