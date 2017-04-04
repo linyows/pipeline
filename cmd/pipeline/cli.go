@@ -22,6 +22,11 @@ type Options struct {
 	Version bool
 }
 
+const escape = "\x1b"
+
+var blue = fmt.Sprintf("%s[%sm", escape, "1;34")
+var clear = fmt.Sprintf("%s[%sm", escape, "0")
+
 var usageText = `
 ╔═╗╦╔═╗╔═╗╦  ╦╔╗╔╔═╗
 ╠═╝║╠═╝║╣ ║  ║║║║║╣
