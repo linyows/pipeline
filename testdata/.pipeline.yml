@@ -1,0 +1,13 @@
+setup:
+  - echo setup
+tasks:
+  - name: task one
+    commands:
+      - echo task1
+  - name: task two
+    commands:
+      - echo task1
+bonds:
+  - echo bond
+teadown:
+  - echo teadown
