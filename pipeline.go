@@ -8,8 +8,9 @@ import (
 
 // Pipeline is structure
 type Pipeline struct {
-	config string
-	data   string
+	ConfigPath string
+	Data       []byte
+	Config     Config
 }
 
 // Config is structure
@@ -47,8 +48,7 @@ type Teadown struct {
 // New for pipeline
 func New() *Pipeline {
 	return &Pipeline{
-		config: ".pipeline.yml",
-		data:   "",
+		ConfigPath: ".pipeline.yml",
 	}
 }
 
@@ -62,28 +62,28 @@ func (p *Pipeline) Run(args []string) int {
 
 // LoadConfig loads a config file
 func (p *Pipeline) LoadConfig() error {
-	data, err := ioutil.ReadFile(p.config)
+	data, err := ioutil.ReadFile(p.ConfigPath)
 	if err != nil {
 		return err
 	}
-	c := Config{}
-	if err := yaml.Unmarshal(data, &c); err == nil {
+	p.Data = data
+	if err := yaml.Unmarshal(p.Data, p.Config); err == nil {
 		return err
 	}
 	s := Setup{}
-	if err := yaml.Unmarshal(data, &s); err == nil {
+	if err := yaml.Unmarshal(p.Data, &s); err == nil {
 		return err
 	}
 	t := Tasks{}
-	if err := yaml.Unmarshal(data, &t); err == nil {
+	if err := yaml.Unmarshal(p.Data, &t); err == nil {
 		return err
 	}
 	b := Bond{}
-	if err := yaml.Unmarshal(data, &b); err == nil {
+	if err := yaml.Unmarshal(p.Data, &b); err == nil {
 		return err
 	}
 	d := Teadown{}
-	if err := yaml.Unmarshal(data, &d); err == nil {
+	if err := yaml.Unmarshal(p.Data, &d); err == nil {
 		return err
 	}
 
