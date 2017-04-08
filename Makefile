@@ -19,12 +19,16 @@ depsdev: deps
 build:
 	go build -v ./cmd/pipeline
 
-ci: depsdev test cover
+ci: depsdev vet lint test cover
 
 test:
-	go vet $(TEST)
-	test -z "$(gofmt -s -l . 2>&1 | grep -v vendor | tee /dev/stderr)"
 	go test -race $(TEST)
+
+vet:
+	go vet $(TEST)
+
+lint:
+	test -z "$(gofmt -s -l . 2>&1 | grep -v vendor | tee /dev/stderr)"
 
 cover:
 	gotestcover -v -covermode=count -coverprofile=coverage.out -parallelpackages=4 $(TEST)
