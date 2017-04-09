@@ -15,7 +15,7 @@ func TestNew(t *testing.T) {
 	}
 
 	if p.Data != nil {
-		t.Errorf("expected %s to eq %s", p.Data, nil)
+		t.Errorf("expected %s to eq nil", p.Data)
 	}
 }
 
