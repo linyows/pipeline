@@ -1,4 +1,4 @@
-package main
+package pipeline
 
 // Name for this package
 const Name string = "pipeline"

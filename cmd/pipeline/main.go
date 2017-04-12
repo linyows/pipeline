@@ -2,9 +2,11 @@ package main
 
 import (
 	"os"
+
+	"github.com/linyows/pipeline"
 )
 
 func main() {
-	c := &CLI{outStream: os.Stdout, errStream: os.Stderr, inStream: os.Stdin}
-	os.Exit(c.Run(os.Args))
+	cli := pipeline.NewCLI(os.Stdout, os.Stderr, os.Stdin)
+	os.Exit(cli.Run(os.Args))
 }

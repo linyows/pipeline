@@ -1,11 +1,9 @@
-package main
+package pipeline
 
 import (
 	"fmt"
 	"io"
 	"os"
-
-	"github.com/linyows/pipeline"
 
 	flag "github.com/linyows/mflag"
 )
@@ -50,6 +48,15 @@ type CLI struct {
 	inStream             *os.File
 }
 
+// NewCLI returns CLI struct
+func NewCLI(o io.Writer, e io.Writer, i *os.File) {
+	return &CLI{
+		outStream: o,
+		errStream: e,
+		inStream:  i,
+	}
+}
+
 // Run invokes the CLI with the given arguments.
 func (c *CLI) Run(args []string) int {
 	f := flag.NewFlagSet(Name, flag.ContinueOnError)
@@ -82,7 +89,7 @@ func (c *CLI) Run(args []string) int {
 
 	f.Usage()
 
-	p := pipeline.New()
+	p := NewPipeline()
 	p.Run(f.Args())
 
 	return ExitCodeOK

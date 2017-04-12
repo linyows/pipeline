@@ -45,8 +45,8 @@ type Teadown struct {
 	setup []string
 }
 
-// New for pipeline
-func New() *Pipeline {
+// NewPipeline for pipeline
+func NewPipeline() *Pipeline {
 	return &Pipeline{
 		ConfigPath: ".pipeline.yml",
 	}

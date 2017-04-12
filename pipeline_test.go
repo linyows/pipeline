@@ -2,12 +2,10 @@ package pipeline
 
 import (
 	"testing"
-
-	"github.com/linyows/pipeline"
 )
 
-func TestNew(t *testing.T) {
-	p := pipeline.New()
+func TestNewPipeline(t *testing.T) {
+	p := NewPipeline()
 	expected := ".pipeline.yml"
 
 	if p.ConfigPath != expected {
@@ -20,7 +18,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestLoadConfig(t *testing.T) {
-	p := pipeline.New()
+	p := NewPipeline()
 	p.ConfigPath = "testdata/.pipeline.yml"
 	p.LoadConfig()
 	//expected := pipeline.Setup{}

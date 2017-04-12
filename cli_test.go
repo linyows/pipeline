@@ -1,4 +1,4 @@
-package main
+package pipeline
 
 import (
 	"bytes"
@@ -7,9 +7,9 @@ import (
 	"testing"
 )
 
-func TestRun_versionFlag(t *testing.T) {
+func TestRunVersionFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
-	cli := &CLI{outStream: outStream, errStream: errStream}
+	cli := NewCLI(outStream, errStream, io.Stdin)
 	args := strings.Split("pipeline --version", " ")
 
 	status := cli.Run(args)
