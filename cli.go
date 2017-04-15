@@ -49,7 +49,7 @@ type CLI struct {
 }
 
 // NewCLI returns CLI struct
-func NewCLI(o io.Writer, e io.Writer, i *os.File) {
+func NewCLI(o io.Writer, e io.Writer, i *os.File) *CLI {
 	return &CLI{
 		outStream: o,
 		errStream: e,

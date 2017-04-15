@@ -3,13 +3,14 @@ package pipeline
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 )
 
 func TestRunVersionFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
-	cli := NewCLI(outStream, errStream, io.Stdin)
+	cli := NewCLI(outStream, errStream, os.Stdin)
 	args := strings.Split("pipeline --version", " ")
 
 	status := cli.Run(args)
