@@ -277,6 +277,14 @@ func TestSingleExclamationError(t *testing.T) {
 	}
 }
 
+// A string preceded with a ! should return true from Exclusion.
+func TestExclusion(t *testing.T) {
+	exclusion := exclusion("!")
+	if !exclusion {
+		t.Errorf("failed to get true for a single !, got %v", exclusion)
+	}
+}
+
 // Matches with no patterns
 func TestMatchesWithNoPatterns(t *testing.T) {
 	matches, err := Matches("/any/path/there", []string{})
@@ -317,7 +325,7 @@ func TestMatches(t *testing.T) {
 		{"**", "/", true},
 		{"**/", "/", true},
 		{"**", "dir/file", true},
-		{"**/", "dir/file", true},
+		{"**/", "dir/file", false},
 		{"**", "dir/file/", true},
 		{"**/", "dir/file/", true},
 		{"**/**", "dir/file", true},
@@ -327,7 +335,7 @@ func TestMatches(t *testing.T) {
 		{"dir/**", "dir/dir2/file", true},
 		{"dir/**", "dir/dir2/file/", true},
 		{"**/dir2/*", "dir/dir2/file", true},
-		{"**/dir2/*", "dir/dir2/file/", true},
+		{"**/dir2/*", "dir/dir2/file/", false},
 		{"**/dir2/**", "dir/dir2/dir3/file", true},
 		{"**/dir2/**", "dir/dir2/dir3/file/", true},
 		{"**file", "file", true},
@@ -371,84 +379,73 @@ func TestMatches(t *testing.T) {
 		{"abc/**", "abc", false},
 		{"abc/**", "abc/def", true},
 		{"abc/**", "abc/def/ghi", true},
-		{"**/.foo", ".foo", true},
-		{"**/.foo", "bar.foo", false},
 	}
 
 	for _, test := range tests {
-		pm, err := NewPatternMatcher([]string{test.pattern})
-		if err != nil {
-			t.Fatalf("invalid pattern %s", test.pattern)
-		}
-		res, _ := pm.Matches(test.text)
+		res, _ := regexpMatch(test.pattern, test.text)
 		if res != test.pass {
 			t.Fatalf("Failed: %v - res:%v", test, res)
 		}
 	}
 }
 
-func TestCleanPatterns(t *testing.T) {
-	patterns := []string{"docs", "config"}
-	pm, err := NewPatternMatcher(patterns)
-	if err != nil {
-		t.Fatalf("invalid pattern %v", patterns)
+// An empty string should return true from Empty.
+func TestEmpty(t *testing.T) {
+	empty := empty("")
+	if !empty {
+		t.Errorf("failed to get true for an empty string, got %v", empty)
 	}
-	cleaned := pm.Patterns()
+}
+
+func TestCleanPatterns(t *testing.T) {
+	cleaned, _, _, _ := CleanPatterns([]string{"docs", "config"})
 	if len(cleaned) != 2 {
 		t.Errorf("expected 2 element slice, got %v", len(cleaned))
 	}
 }
 
 func TestCleanPatternsStripEmptyPatterns(t *testing.T) {
-	patterns := []string{"docs", "config", ""}
-	pm, err := NewPatternMatcher(patterns)
-	if err != nil {
-		t.Fatalf("invalid pattern %v", patterns)
-	}
-	cleaned := pm.Patterns()
+	cleaned, _, _, _ := CleanPatterns([]string{"docs", "config", ""})
 	if len(cleaned) != 2 {
 		t.Errorf("expected 2 element slice, got %v", len(cleaned))
 	}
 }
 
 func TestCleanPatternsExceptionFlag(t *testing.T) {
-	patterns := []string{"docs", "!docs/README.md"}
-	pm, err := NewPatternMatcher(patterns)
-	if err != nil {
-		t.Fatalf("invalid pattern %v", patterns)
-	}
-	if !pm.Exclusions() {
-		t.Errorf("expected exceptions to be true, got %v", pm.Exclusions())
+	_, _, exceptions, _ := CleanPatterns([]string{"docs", "!docs/README.md"})
+	if !exceptions {
+		t.Errorf("expected exceptions to be true, got %v", exceptions)
 	}
 }
 
 func TestCleanPatternsLeadingSpaceTrimmed(t *testing.T) {
-	patterns := []string{"docs", "  !docs/README.md"}
-	pm, err := NewPatternMatcher(patterns)
-	if err != nil {
-		t.Fatalf("invalid pattern %v", patterns)
-	}
-	if !pm.Exclusions() {
-		t.Errorf("expected exceptions to be true, got %v", pm.Exclusions())
+	_, _, exceptions, _ := CleanPatterns([]string{"docs", "  !docs/README.md"})
+	if !exceptions {
+		t.Errorf("expected exceptions to be true, got %v", exceptions)
 	}
 }
 
 func TestCleanPatternsTrailingSpaceTrimmed(t *testing.T) {
-	patterns := []string{"docs", "!docs/README.md  "}
-	pm, err := NewPatternMatcher(patterns)
-	if err != nil {
-		t.Fatalf("invalid pattern %v", patterns)
-	}
-	if !pm.Exclusions() {
-		t.Errorf("expected exceptions to be true, got %v", pm.Exclusions())
+	_, _, exceptions, _ := CleanPatterns([]string{"docs", "!docs/README.md  "})
+	if !exceptions {
+		t.Errorf("expected exceptions to be true, got %v", exceptions)
 	}
 }
 
 func TestCleanPatternsErrorSingleException(t *testing.T) {
-	patterns := []string{"!"}
-	_, err := NewPatternMatcher(patterns)
+	_, _, _, err := CleanPatterns([]string{"!"})
 	if err == nil {
 		t.Errorf("expected error on single exclamation point, got %v", err)
+	}
+}
+
+func TestCleanPatternsFolderSplit(t *testing.T) {
+	_, dirs, _, _ := CleanPatterns([]string{"docs/config/CONFIG.md"})
+	if dirs[0][0] != "docs" {
+		t.Errorf("expected first element in dirs slice to be docs, got %v", dirs[0][1])
+	}
+	if dirs[0][1] != "config" {
+		t.Errorf("expected first element in dirs slice to be config, got %v", dirs[0][1])
 	}
 }
 
@@ -509,7 +506,7 @@ var matchTests = []matchTest{
 	{"*c", "abc", true, nil},
 	{"a*", "a", true, nil},
 	{"a*", "abc", true, nil},
-	{"a*", "ab/c", true, nil},
+	{"a*", "ab/c", false, nil},
 	{"a*/b", "abc/b", true, nil},
 	{"a*/b", "a/c/b", false, nil},
 	{"a*b*c*d*e*/f", "axbxcxdxe/f", true, nil},
@@ -580,7 +577,7 @@ func TestMatch(t *testing.T) {
 			pattern = filepath.Clean(pattern)
 			s = filepath.Clean(s)
 		}
-		ok, err := Matches(s, []string{pattern})
+		ok, err := regexpMatch(pattern, s)
 		if ok != tt.match || err != tt.err {
 			t.Fatalf("Match(%#q, %#q) = %v, %q want %v, %q", pattern, s, ok, errp(err), tt.match, errp(tt.err))
 		}

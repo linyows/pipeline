@@ -4,8 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/docker/docker/integration-cli/checker"
-	"github.com/docker/docker/integration-cli/cli/build"
+	"github.com/docker/docker/pkg/integration/checker"
 	"github.com/go-check/check"
 )
 
@@ -39,16 +38,14 @@ func (s *DockerSuite) TestRmContainerWithVolume(c *check.C) {
 func (s *DockerSuite) TestRmContainerRunning(c *check.C) {
 	createRunningContainer(c, "foo")
 
-	res, _, err := dockerCmdWithError("rm", "foo")
+	_, _, err := dockerCmdWithError("rm", "foo")
 	c.Assert(err, checker.NotNil, check.Commentf("Expected error, can't rm a running container"))
-	c.Assert(res, checker.Contains, "cannot remove a running container")
-	c.Assert(res, checker.Contains, "Stop the container before attempting removal or force remove")
 }
 
 func (s *DockerSuite) TestRmContainerForceRemoveRunning(c *check.C) {
 	createRunningContainer(c, "foo")
 
-	// Stop then remove with -f
+	// Stop then remove with -s
 	dockerCmd(c, "rm", "-f", "foo")
 }
 
@@ -61,12 +58,13 @@ func (s *DockerSuite) TestRmContainerOrphaning(c *check.C) {
 	MAINTAINER Integration Tests`
 
 	// build first dockerfile
-	buildImageSuccessfully(c, img, build.WithDockerfile(dockerfile1))
-	img1 := getIDByName(c, img)
+	img1, err := buildImage(img, dockerfile1, true)
+	c.Assert(err, check.IsNil, check.Commentf("Could not build image %s", img))
 	// run container on first image
 	dockerCmd(c, "run", img)
 	// rebuild dockerfile with a small addition at the end
-	buildImageSuccessfully(c, img, build.WithDockerfile(dockerfile2))
+	_, err = buildImage(img, dockerfile2, true)
+	c.Assert(err, check.IsNil, check.Commentf("Could not rebuild image %s", img))
 	// try to remove the image, should not error out.
 	out, _, err := dockerCmdWithError("rmi", img)
 	c.Assert(err, check.IsNil, check.Commentf("Expected to removing the image, but failed: %s", out))
@@ -85,32 +83,4 @@ func (s *DockerSuite) TestRmInvalidContainer(c *check.C) {
 
 func createRunningContainer(c *check.C, name string) {
 	runSleepingContainer(c, "-dt", "--name", name)
-}
-
-// #30842
-func (s *DockerSuite) TestRmRestartingContainer(c *check.C) {
-	name := "rst"
-	dockerCmd(c, "run", "--name", name, "--restart=always", "busybox", "date")
-
-	res, _, err := dockerCmdWithError("rm", name)
-	c.Assert(err, checker.NotNil, check.Commentf("Expected error on rm a restarting container, got none"))
-	c.Assert(res, checker.Contains, "cannot remove a restarting container")
-	c.Assert(res, checker.Contains, "Stop the container before attempting removal or force remove")
-	dockerCmd(c, "rm", "-f", name)
-}
-
-// #30842
-func (s *DockerSuite) TestRmPausedContainer(c *check.C) {
-	testRequires(c, IsPausable)
-	name := "psd"
-	dockerCmd(c, "run", "--name", name, "-d", "busybox", "sleep", "1m")
-	dockerCmd(c, "pause", name)
-
-	res, _, err := dockerCmdWithError("rm", name)
-	c.Assert(err, checker.NotNil, check.Commentf("Expected error on rm a paused container, got none"))
-	c.Assert(res, checker.Contains, "cannot remove a paused container")
-	c.Assert(res, checker.Contains, "Unpause and then stop the container before attempting removal or force remove")
-	unpauseContainer(c, name)
-	dockerCmd(c, "stop", name)
-	dockerCmd(c, "rm", name)
 }

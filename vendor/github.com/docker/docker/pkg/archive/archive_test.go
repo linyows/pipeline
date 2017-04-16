@@ -67,7 +67,7 @@ func TestIsArchivePathDir(t *testing.T) {
 }
 
 func TestIsArchivePathInvalidFile(t *testing.T) {
-	cmd := exec.Command("sh", "-c", "dd if=/dev/zero bs=1024 count=1 of=/tmp/archive && gzip --stdout /tmp/archive > /tmp/archive.gz")
+	cmd := exec.Command("sh", "-c", "dd if=/dev/zero bs=1K count=1 of=/tmp/archive && gzip --stdout /tmp/archive > /tmp/archive.gz")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Fail to create an archive file for test : %s.", output)
@@ -81,14 +81,7 @@ func TestIsArchivePathInvalidFile(t *testing.T) {
 }
 
 func TestIsArchivePathTar(t *testing.T) {
-	var whichTar string
-	if runtime.GOOS == "solaris" {
-		whichTar = "gtar"
-	} else {
-		whichTar = "tar"
-	}
-	cmdStr := fmt.Sprintf("touch /tmp/archivedata && %s -cf /tmp/archive /tmp/archivedata && gzip --stdout /tmp/archive > /tmp/archive.gz", whichTar)
-	cmd := exec.Command("sh", "-c", cmdStr)
+	cmd := exec.Command("sh", "-c", "touch /tmp/archivedata && tar -cf /tmp/archive /tmp/archivedata && gzip --stdout /tmp/archive > /tmp/archive.gz")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Fail to create an archive file for test : %s.", output)
@@ -101,54 +94,53 @@ func TestIsArchivePathTar(t *testing.T) {
 	}
 }
 
-func testDecompressStream(t *testing.T, ext, compressCommand string) {
-	cmd := exec.Command("sh", "-c",
-		fmt.Sprintf("touch /tmp/archive && %s /tmp/archive", compressCommand))
+func TestDecompressStreamGzip(t *testing.T) {
+	cmd := exec.Command("sh", "-c", "touch /tmp/archive && gzip -f /tmp/archive")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("Failed to create an archive file for test : %s.", output)
+		t.Fatalf("Fail to create an archive file for test : %s.", output)
 	}
-	filename := "archive." + ext
-	archive, err := os.Open(tmp + filename)
+	archive, err := os.Open(tmp + "archive.gz")
+	_, err = DecompressStream(archive)
 	if err != nil {
-		t.Fatalf("Failed to open file %s: %v", filename, err)
+		t.Fatalf("Failed to decompress a gzip file.")
 	}
-	defer archive.Close()
-
-	r, err := DecompressStream(archive)
-	if err != nil {
-		t.Fatalf("Failed to decompress %s: %v", filename, err)
-	}
-	if _, err = ioutil.ReadAll(r); err != nil {
-		t.Fatalf("Failed to read the decompressed stream: %v ", err)
-	}
-	if err = r.Close(); err != nil {
-		t.Fatalf("Failed to close the decompressed stream: %v ", err)
-	}
-}
-
-func TestDecompressStreamGzip(t *testing.T) {
-	testDecompressStream(t, "gz", "gzip -f")
 }
 
 func TestDecompressStreamBzip2(t *testing.T) {
-	testDecompressStream(t, "bz2", "bzip2 -f")
+	cmd := exec.Command("sh", "-c", "touch /tmp/archive && bzip2 -f /tmp/archive")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("Fail to create an archive file for test : %s.", output)
+	}
+	archive, err := os.Open(tmp + "archive.bz2")
+	_, err = DecompressStream(archive)
+	if err != nil {
+		t.Fatalf("Failed to decompress a bzip2 file.")
+	}
 }
 
 func TestDecompressStreamXz(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("Xz not present in msys2")
 	}
-	testDecompressStream(t, "xz", "xz -f")
+	cmd := exec.Command("sh", "-c", "touch /tmp/archive && xz -f /tmp/archive")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("Fail to create an archive file for test : %s.", output)
+	}
+	archive, err := os.Open(tmp + "archive.xz")
+	_, err = DecompressStream(archive)
+	if err != nil {
+		t.Fatalf("Failed to decompress an xz file.")
+	}
 }
 
-func TestCompressStreamXzUnsupported(t *testing.T) {
+func TestCompressStreamXzUnsuported(t *testing.T) {
 	dest, err := os.Create(tmp + "dest")
 	if err != nil {
 		t.Fatalf("Fail to create the destination file")
 	}
-	defer dest.Close()
-
 	_, err = CompressStream(dest, Xz)
 	if err == nil {
 		t.Fatalf("Should fail as xz is unsupported for compression format.")
@@ -160,8 +152,6 @@ func TestCompressStreamBzip2Unsupported(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Fail to create the destination file")
 	}
-	defer dest.Close()
-
 	_, err = CompressStream(dest, Xz)
 	if err == nil {
 		t.Fatalf("Should fail as xz is unsupported for compression format.")
@@ -173,8 +163,6 @@ func TestCompressStreamInvalid(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Fail to create the destination file")
 	}
-	defer dest.Close()
-
 	_, err = CompressStream(dest, -1)
 	if err == nil {
 		t.Fatalf("Should fail as xz is unsupported for compression format.")
@@ -794,7 +782,7 @@ func TestTypeXGlobalHeaderDoesNotFail(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpDir)
-	err = createTarFile(filepath.Join(tmpDir, "pax_global_header"), tmpDir, &hdr, nil, true, nil, false)
+	err = createTarFile(filepath.Join(tmpDir, "pax_global_header"), tmpDir, &hdr, nil, true, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -807,8 +795,6 @@ func TestUntarUstarGnuConflict(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer f.Close()
-
 	found := false
 	tr := tar.NewReader(f)
 	// Iterate through the files in the archive.

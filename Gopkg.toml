@@ -1,0 +1,8 @@
+
+[[dependencies]]
+  branch = "master"
+  name = "github.com/linyows/mflag"
+
+[[dependencies]]
+  branch = "v2"
+  name = "gopkg.in/yaml.v2"

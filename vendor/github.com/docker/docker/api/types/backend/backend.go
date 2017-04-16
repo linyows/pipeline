@@ -1,11 +1,13 @@
 // Package backend includes types to send information to server backends.
+// TODO(calavera): This package is pending of extraction to engine-api
+// when the server package is clean of daemon dependencies.
 package backend
 
 import (
 	"io"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/pkg/streamformatter"
+	"github.com/docker/engine-api/types"
 )
 
 // ContainerAttachConfig holds the streams to use when connecting to a container to view logs.
@@ -18,7 +20,7 @@ type ContainerAttachConfig struct {
 	Stream     bool
 	DetachKeys string
 
-	// Used to signify that streams are multiplexed and therefore need a StdWriter to encode stdout/stderr messages accordingly.
+	// Used to signify that streams are multiplexed and therefore need a StdWriter to encode stdout/sderr messages accordingly.
 	// TODO @cpuguy83: This shouldn't be needed. It was only added so that http and websocket endpoints can use the same function, and the websocket function was not using a stdwriter prior to this change...
 	// HOWEVER, the websocket endpoint is using a single stream and SHOULD be encoded with stdout/stderr as is done for HTTP since it is still just a single stream.
 	// Since such a change is an API change unrelated to the current changeset we'll keep it as is here and change separately.
@@ -53,7 +55,6 @@ type ExecInspect struct {
 	CanRemove     bool
 	ContainerID   string
 	DetachKeys    []byte
-	Pid           int
 }
 
 // ExecProcessConfig holds information about the exec process

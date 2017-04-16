@@ -21,11 +21,13 @@ func (node *Node) Dump() string {
 		str += "(" + n.Dump() + ")\n"
 	}
 
-	for n := node.Next; n != nil; n = n.Next {
-		if len(n.Children) > 0 {
-			str += " " + n.Dump()
-		} else {
-			str += " " + strconv.Quote(n.Value)
+	if node.Next != nil {
+		for n := node.Next; n != nil; n = n.Next {
+			if len(n.Children) > 0 {
+				str += " " + n.Dump()
+			} else {
+				str += " " + strconv.Quote(n.Value)
+			}
 		}
 	}
 
@@ -116,7 +118,7 @@ func extractBuilderFlags(line string) (string, []string, error) {
 				return line[pos:], words, nil
 			}
 
-			phase = inWord // found something with "--", fall through
+			phase = inWord // found someting with "--", fall through
 		}
 		if (phase == inWord || phase == inQuote) && (pos == len(line)) {
 			if word != "--" && (blankOK || len(word) > 0) {
