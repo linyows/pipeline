@@ -3,7 +3,7 @@ package pipeline
 import (
 	"io/ioutil"
 
-	yaml "gopkg.in/yaml.v2"
+	"github.com/BurntSushi/toml"
 )
 
 // Pipeline is structure
@@ -66,24 +66,10 @@ func (p *Pipeline) LoadConfig() error {
 	if err != nil {
 		return err
 	}
+
 	p.Data = data
-	if err := yaml.Unmarshal(p.Data, p.Config); err == nil {
-		return err
-	}
-	s := Setup{}
-	if err := yaml.Unmarshal(p.Data, &s); err == nil {
-		return err
-	}
-	t := Tasks{}
-	if err := yaml.Unmarshal(p.Data, &t); err == nil {
-		return err
-	}
-	b := Bond{}
-	if err := yaml.Unmarshal(p.Data, &b); err == nil {
-		return err
-	}
-	d := Teadown{}
-	if err := yaml.Unmarshal(p.Data, &d); err == nil {
+
+	if _, err := toml.Decode(p.Data, &Config); err != nil {
 		return err
 	}
 
