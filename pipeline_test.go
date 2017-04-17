@@ -21,8 +21,7 @@ func TestLoadConfig(t *testing.T) {
 	p := NewPipeline()
 	p.ConfigPath = "testdata/.pipeline.yml"
 	p.LoadConfig()
-	//expected := pipeline.Setup{}
-	//if p.Config.Setup == expected {
-	//	t.Errorf("%+v", p.Config)
+	//if p.Config == "" {
+	t.Errorf("%+v", p.Config.Setup)
 	//}
 }
