@@ -1,22 +1,16 @@
-memo = "abd7523e4c664b68a31b4a31174c825d8a19da1b74d1417d6815ada07bfc27a5"
+memo = "caf29f3565d3e4cc74b0a88e3f65af874d9f7ac8674df3bdfd9c17c8123099e4"
 
 [[projects]]
-  name = "github.com/Sirupsen/logrus"
+  name = "github.com/BurntSushi/toml"
   packages = ["."]
-  revision = "ba1b36c82c5e05c4f912a88eab0dcd91a171688f"
-  version = "v0.11.5"
+  revision = "b26d9c308763d68093482582cea63d69be07a0f0"
+  version = "v0.3.0"
 
 [[projects]]
   name = "github.com/docker/docker"
-  packages = ["pkg/homedir","pkg/idtools","pkg/system"]
+  packages = ["pkg/homedir"]
   revision = "78d18021ecba00c00730dec9d56de6896f9e708d"
   version = "v1.12.6"
-
-[[projects]]
-  name = "github.com/docker/go-units"
-  packages = ["."]
-  revision = "f2d77a61e3c169b43402a0a1e84f06daf29b8190"
-  version = "v0.3.1"
 
 [[projects]]
   branch = "master"
@@ -29,15 +23,3 @@ memo = "abd7523e4c664b68a31b4a31174c825d8a19da1b74d1417d6815ada07bfc27a5"
   packages = ["libcontainer/user"]
   revision = "baf6536d6259209c3edfa2b22237af82942d3dfa"
   version = "v0.1.1"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/sys"
-  packages = ["unix"]
-  revision = "afadfcc7779c1f4db0f6f6438afcb108d9c9c7cd"
-
-[[projects]]
-  branch = "v2"
-  name = "gopkg.in/yaml.v2"
-  packages = ["."]
-  revision = "a3f3340b5840cee44f372bddb5880fcbc419b46a"
