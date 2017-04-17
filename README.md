@@ -48,30 +48,34 @@ Example
 
 ```sh
 cat << EOF > .pipeline
-setup:
-  %BRANCH% = $BRANCH
-  %BASE% = $BASE
-  %ISSUE_ID% = $ISSUE_ID
-  %GITHUB_TOKEN% = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-line1:
-  name: build branch
-  git checkout -f %BRANCH%
-  bin/rspec
-  %BRANCH_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'"
-line2:
-  name: build master
-  git checkout -f %BASE%
-  bin/rspec
-  %BASE_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'"
-bond:
-  %PERCENT% = $(./calculate.sh)
-  %COMMENT% = $(./build_comment.sh)
-  plugin-github-comment:
-    comment: %COMMENT%
-  plugin-github-pr:
-    status: %STATUS%
-teadown
-  exit %EXIT_STATUS%
+[[setup]]
+%BRANCH% = $BRANCH
+%BASE% = $BASE
+%ISSUE_ID% = $ISSUE_ID
+%GITHUB_TOKEN% = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+[[line]]
+name = build branch
+git checkout -f %BRANCH%
+bin/rspec
+%BRANCH_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'"
+
+[[line]]
+name = build master
+git checkout -f %BASE%
+bin/rspec
+%BASE_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'"
+
+[[bond]]
+%PERCENT% = $(./calculate.sh)
+%COMMENT% = $(./build_comment.sh)
+plugin-github-comment
+  comment = %COMMENT%
+plugin-github-pr
+  status = %STATUS%
+
+[[teadown]]
+exit %EXIT_STATUS%
 EOF
 ```
 
