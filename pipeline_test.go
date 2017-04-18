@@ -19,7 +19,7 @@ func TestNewPipeline(t *testing.T) {
 
 func TestLoadConfig(t *testing.T) {
 	p := NewPipeline()
-	p.ConfigPath = "testdata/.pipeline.yml"
+	p.ConfigPath = "testdata/.pipeline.toml"
 	p.LoadConfig()
 	//if p.Config == "" {
 	t.Errorf("%+v", p.Config.Setup)

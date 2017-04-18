@@ -1,0 +1,16 @@
+[setup]
+commands = [ "echo setup" ]
+
+[[tasks]]
+name = "task one"
+commands = [ "date", "echo task1" ]
+
+[[tasks]]
+name = "task two"
+commands = [ "date", "echo task2" ]
+
+[bonds]
+commands = [ "echo bond" ]
+
+[teadown]
+commands = [ "echo teadown" ]

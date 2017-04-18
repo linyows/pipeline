@@ -68,8 +68,9 @@ func (p *Pipeline) LoadConfig() error {
 	}
 
 	p.Data = data
+	var conf Config
 
-	if _, err := toml.Decode(p.Data, &Config); err != nil {
+	if _, err := toml.Decode(string(p.Data), conf); err != nil {
 		return err
 	}
 
