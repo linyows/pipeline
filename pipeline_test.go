@@ -21,7 +21,7 @@ func TestLoadConfig(t *testing.T) {
 	p := NewPipeline()
 	p.ConfigPath = "testdata/.pipeline.toml"
 	p.LoadConfig()
-	//if p.Config == "" {
-	t.Errorf("%+v", p.Config.Setup)
-	//}
+	if p.Config.Setup.name != "" {
+		t.Errorf("%+v", p.Config.Setup.name)
+	}
 }
