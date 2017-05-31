@@ -13,14 +13,6 @@ This tool is pipeline framework.
 [license]: https://github.com/linyows/pipeline/blob/master/LICENSE
 [godocs]: http://godoc.org/github.com/linyows/pipeline
 
-Order of Pipeline
------------------
-
-1. Setup
-1. Line (In parallel)
-1. Bond
-1. Teadown
-
 Built-in Plugins
 ----------------
 
@@ -31,51 +23,36 @@ Built-in Plugins
 Usage
 -----
 
-### SimpleCov and Rspec
-
 ```sh
-$ pipeline -p "cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'" bin/rspec
-```
-
-### PHP CodeCoverage and PHPUnit
-
-```sh
-$ pipeline -p "cat coverage/report.txt | grep -i lines | awk '{print $2}' | sed 's/%//'" vendor/bin/phpunit
-```
-
-Example
--------
-
-```sh
-cat << EOF > .pipeline
-[[setup]]
-%BRANCH% = $BRANCH
-%BASE% = $BASE
-%ISSUE_ID% = $ISSUE_ID
-%GITHUB_TOKEN% = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-
-[[line]]
-name = build branch
-git checkout -f %BRANCH%
-bin/rspec
-%BRANCH_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'"
-
-[[line]]
-name = build master
-git checkout -f %BASE%
-bin/rspec
-%BASE_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'"
-
-[[bond]]
-%PERCENT% = $(./calculate.sh)
-%COMMENT% = $(./build_comment.sh)
-plugin-github-comment
-  comment = %COMMENT%
-plugin-github-pr
-  status = %STATUS%
-
-[[teadown]]
-exit %EXIT_STATUS%
+cat << EOF > .pipeline.yml
+variables:
+  %BRANCH%: $BRANCH
+  %BASE%: $BASE
+  %ISSUE_ID%: $ISSUE_ID
+  %GITHUB_TOKEN%: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+lines:
+  parallels:
+    - name: build branch
+      commands: |
+        git checkout -f %BRANCH%
+        bin/rspec
+        %BRANCH_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'"
+    - name: build master
+      commands: |
+        git checkout -f %BASE%
+        bin/rspec
+        %BASE_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'"
+  - name: calculate coverage
+    commands: |
+      %PERCENT% = $(./calculate.sh)
+      %COMMENT% = $(./build_comment.sh)
+      exit %EXIT_STATUS%
+    plugins:
+      - github-comment
+      - github-pr
+  - name: notify to slack
+    plugins:
+      - slack-notify
 EOF
 ```
 
