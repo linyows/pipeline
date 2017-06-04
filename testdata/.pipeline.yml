@@ -1,0 +1,28 @@
+variables:
+  %BRANCH%: $BRANCH
+  %BASE%: $BASE
+  %ISSUE_ID%: $ISSUE_ID
+  %GITHUB_TOKEN%: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+lines:
+  parallels:
+    - name: build branch
+      commands: |
+        git checkout -f %BRANCH%
+        bin/rspec
+        %BRANCH_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'
+    - name: build master
+      commands: |
+        git checkout -f %BASE%
+        bin/rspec
+        %BASE_PERCENT% = cat coverage/.last_run.json | grep covered_percent | awk '{print $2}'
+  - name: calculate coverage
+    commands: |
+      %PERCENT% = $(./calculate.sh)
+      %COMMENT% = $(./build_comment.sh)
+      exit %EXIT_STATUS%
+    plugins:
+      - github-comment
+      - github-pr
+  - name: notify to slack
+    plugins:
+      - slack-notify
