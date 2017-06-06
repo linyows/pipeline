@@ -27,6 +27,8 @@ build: ## Build for bin
 ci: depsdev vet lint test cover ## Run test and more...
 
 test: ## Run Test
+	@echo "$(INFO_COLOR)==> $(RESET)$(BOLD)Testing$(RESET)"
+	go test -v $(TEST) -timeout=30s -parallel=4
 	go test -race $(TEST)
 
 vet: ## Exec go vet
