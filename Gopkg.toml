@@ -5,8 +5,8 @@
 
 [[dependencies]]
   branch = "master"
-  name = "github.com/go-yaml/yaml"
+  name = "github.com/linyows/mflag"
 
 [[dependencies]]
   branch = "master"
-  name = "github.com/linyows/mflag"
+  name = "gopkg.in/yaml.v2"

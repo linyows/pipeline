@@ -1,16 +1,16 @@
-memo = "caf29f3565d3e4cc74b0a88e3f65af874d9f7ac8674df3bdfd9c17c8123099e4"
-
-[[projects]]
-  name = "github.com/BurntSushi/toml"
-  packages = ["."]
-  revision = "b26d9c308763d68093482582cea63d69be07a0f0"
-  version = "v0.3.0"
+memo = "b0fca8e322bcf41ce88ce720b58339282ab2fe3f2f983121cf9f282a147afc81"
 
 [[projects]]
   name = "github.com/docker/docker"
   packages = ["pkg/homedir"]
   revision = "78d18021ecba00c00730dec9d56de6896f9e708d"
   version = "v1.12.6"
+
+[[projects]]
+  branch = "v2"
+  name = "github.com/go-yaml/yaml"
+  packages = ["."]
+  revision = "cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b"
 
 [[projects]]
   branch = "master"
