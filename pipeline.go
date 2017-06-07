@@ -3,7 +3,7 @@ package pipeline
 import (
 	"io/ioutil"
 
-	"github.com/BurntSushi/toml"
+	"github.com/go-yaml/yaml"
 )
 
 // Pipeline is structure
@@ -11,38 +11,17 @@ type Pipeline struct {
 	ConfigPath string
 	Data       []byte
 	Config     Config
+	Lines      []*Tasks
 }
 
 // Config is structure
 type Config struct {
-	Setup   Setup
-	Tasks   Tasks
-	Bond    Bond
-	Teadown Teadown
-}
-
-// Setup is structure
-type Setup struct {
-	name  string
-	setup []string
 }
 
 // Tasks is structure
-type Tasks struct {
-	name string
-	task []string
-}
-
-// Bond is structure
-type Bond struct {
-	name  string
-	setup []string
-}
-
-// Teadown is structure
-type Teadown struct {
-	name  string
-	setup []string
+type Task struct {
+	name    string
+	command string
 }
 
 // NewPipeline for pipeline
@@ -70,7 +49,7 @@ func (p *Pipeline) LoadConfig() error {
 	p.Data = data
 	var conf Config
 
-	if _, err := toml.Decode(string(p.Data), conf); err != nil {
+	if _, err := yaml.Unmarshal(data, p); err != nil {
 		return err
 	}
 
