@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/libcontainerd"
+	"github.com/docker/docker/restartmanager"
 )
 
 // StateChanged updates daemon state changes from containerd
@@ -26,36 +29,61 @@ func (daemon *Daemon) StateChanged(id string, e libcontainerd.StateInfo) error {
 		daemon.updateHealthMonitor(c)
 		daemon.LogContainerEvent(c, "oom")
 	case libcontainerd.StateExit:
+		// if container's AutoRemove flag is set, remove it after clean up
+		autoRemove := func() {
+			c.Lock()
+			ar := c.HostConfig.AutoRemove
+			c.Unlock()
+			if ar {
+				if err := daemon.ContainerRm(c.ID, &types.ContainerRmConfig{ForceRemove: true, RemoveVolume: true}); err != nil {
+					logrus.Errorf("can't remove container %s: %v", c.ID, err)
+				}
+			}
+		}
+
 		c.Lock()
-		defer c.Unlock()
 		c.StreamConfig.Wait()
 		c.Reset(false)
-		c.SetStopped(platformConstructExitStatus(e))
+
+		restart, wait, err := c.RestartManager().ShouldRestart(e.ExitCode, false, time.Since(c.StartedAt))
+		if err == nil && restart {
+			c.RestartCount++
+			c.SetRestarting(platformConstructExitStatus(e))
+		} else {
+			c.SetStopped(platformConstructExitStatus(e))
+			defer autoRemove()
+		}
+
+		daemon.updateHealthMonitor(c)
 		attributes := map[string]string{
 			"exitCode": strconv.Itoa(int(e.ExitCode)),
 		}
-		daemon.updateHealthMonitor(c)
 		daemon.LogContainerEventWithAttributes(c, "die", attributes)
 		daemon.Cleanup(c)
-		// FIXME: here is race condition between two RUN instructions in Dockerfile
-		// because they share same runconfig and change image. Must be fixed
-		// in builder/builder.go
+
+		if err == nil && restart {
+			go func() {
+				err := <-wait
+				if err == nil {
+					if err = daemon.containerStart(c, "", "", false); err != nil {
+						logrus.Debugf("failed to restart container: %+v", err)
+					}
+				}
+				if err != nil {
+					c.SetStopped(platformConstructExitStatus(e))
+					defer autoRemove()
+					if err != restartmanager.ErrRestartCanceled {
+						logrus.Errorf("restartmanger wait error: %+v", err)
+					}
+				}
+			}()
+		}
+
+		defer c.Unlock()
 		if err := c.ToDisk(); err != nil {
 			return err
 		}
 		return daemon.postRunProcessing(c, e)
-	case libcontainerd.StateRestart:
-		c.Lock()
-		defer c.Unlock()
-		c.Reset(false)
-		c.RestartCount++
-		c.SetRestarting(platformConstructExitStatus(e))
-		attributes := map[string]string{
-			"exitCode": strconv.Itoa(int(e.ExitCode)),
-		}
-		daemon.LogContainerEventWithAttributes(c, "die", attributes)
-		daemon.updateHealthMonitor(c)
-		return c.ToDisk()
 	case libcontainerd.StateExitProcess:
 		if execConfig := c.ExecCommands.Get(e.ProcessID); execConfig != nil {
 			ec := int(e.ExitCode)
@@ -65,7 +93,7 @@ func (daemon *Daemon) StateChanged(id string, e libcontainerd.StateInfo) error {
 			execConfig.Running = false
 			execConfig.StreamConfig.Wait()
 			if err := execConfig.CloseStreams(); err != nil {
-				logrus.Errorf("%s: %s", c.ID, err)
+				logrus.Errorf("failed to cleanup exec %s streams: %s", c.ID, err)
 			}
 
 			// remove the exec command from the container's store only and not the
@@ -78,6 +106,7 @@ func (daemon *Daemon) StateChanged(id string, e libcontainerd.StateInfo) error {
 		// Container is already locked in this case
 		c.SetRunning(int(e.Pid), e.State == libcontainerd.StateStart)
 		c.HasBeenManuallyStopped = false
+		c.HasBeenStartedBefore = true
 		if err := c.ToDisk(); err != nil {
 			c.Reset(false)
 			return err
@@ -87,11 +116,17 @@ func (daemon *Daemon) StateChanged(id string, e libcontainerd.StateInfo) error {
 	case libcontainerd.StatePause:
 		// Container is already locked in this case
 		c.Paused = true
+		if err := c.ToDisk(); err != nil {
+			return err
+		}
 		daemon.updateHealthMonitor(c)
 		daemon.LogContainerEvent(c, "pause")
 	case libcontainerd.StateResume:
 		// Container is already locked in this case
 		c.Paused = false
+		if err := c.ToDisk(); err != nil {
+			return err
+		}
 		daemon.updateHealthMonitor(c)
 		daemon.LogContainerEvent(c, "unpause")
 	}

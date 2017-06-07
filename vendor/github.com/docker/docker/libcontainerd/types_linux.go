@@ -2,20 +2,15 @@ package libcontainerd
 
 import (
 	containerd "github.com/docker/containerd/api/grpc/types"
-	"github.com/opencontainers/specs/specs-go"
+	"github.com/opencontainers/runtime-spec/specs-go"
 )
-
-// Spec is the base configuration for the container.  It specifies platform
-// independent configuration. This information must be included when the
-// bundle is packaged for distribution.
-type Spec specs.Spec
 
 // Process contains information to start a specific application inside the container.
 type Process struct {
 	// Terminal creates an interactive terminal for the container.
 	Terminal bool `json:"terminal"`
 	// User specifies user information for the process.
-	User *User `json:"user"`
+	User *specs.User `json:"user"`
 	// Args specifies the binary and arguments for the application to execute.
 	Args []string `json:"args"`
 	// Env populates the process environment for the process.
@@ -44,12 +39,11 @@ type StateInfo struct {
 // Stats contains a stats properties from containerd.
 type Stats containerd.StatsResponse
 
-// Summary container a container summary from containerd
+// Summary contains a container summary from containerd
 type Summary struct{}
-
-// User specifies linux specific user and group information for the container's
-// main process.
-type User specs.User
 
 // Resources defines updatable container resource values.
 type Resources containerd.UpdateResource
+
+// Checkpoints contains the details of a checkpoint
+type Checkpoints containerd.ListCheckpointResponse

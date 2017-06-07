@@ -3,21 +3,20 @@ package libcontainerd
 import (
 	"io"
 
+	containerd "github.com/docker/containerd/api/grpc/types"
+	"github.com/opencontainers/runtime-spec/specs-go"
 	"golang.org/x/net/context"
 )
 
 // State constants used in state change reporting.
 const (
-	StateStart        = "start-container"
-	StatePause        = "pause"
-	StateResume       = "resume"
-	StateExit         = "exit"
-	StateRestart      = "restart"
-	StateRestore      = "restore"
-	StateStartProcess = "start-process"
-	StateExitProcess  = "exit-process"
-	StateOOM          = "oom" // fake state
-	stateLive         = "live"
+	StateStart       = "start-container"
+	StatePause       = "pause"
+	StateResume      = "resume"
+	StateExit        = "exit"
+	StateRestore     = "restore"
+	StateExitProcess = "exit-process"
+	StateOOM         = "oom" // fake state
 )
 
 // CommonStateInfo contains the state info common to all platforms.
@@ -35,10 +34,11 @@ type Backend interface {
 
 // Client provides access to containerd features.
 type Client interface {
-	Create(containerID string, spec Spec, attachStdio StdioCallback, options ...CreateOption) error
+	GetServerVersion(ctx context.Context) (*ServerVersion, error)
+	Create(containerID string, checkpoint string, checkpointDir string, spec specs.Spec, attachStdio StdioCallback, options ...CreateOption) error
 	Signal(containerID string, sig int) error
 	SignalProcess(containerID string, processFriendlyName string, sig int) error
-	AddProcess(ctx context.Context, containerID, processFriendlyName string, process Process, attachStdio StdioCallback) error
+	AddProcess(ctx context.Context, containerID, processFriendlyName string, process Process, attachStdio StdioCallback) (int, error)
 	Resize(containerID, processFriendlyName string, width, height int) error
 	Pause(containerID string) error
 	Resume(containerID string) error
@@ -47,6 +47,9 @@ type Client interface {
 	GetPidsForContainer(containerID string) ([]int, error)
 	Summary(containerID string) ([]Summary, error)
 	UpdateResources(containerID string, resources Resources) error
+	CreateCheckpoint(containerID string, checkpointID string, checkpointDir string, exit bool) error
+	DeleteCheckpoint(containerID string, checkpointID string, checkpointDir string) error
+	ListCheckpoints(containerID string, checkpointDir string) (*Checkpoints, error)
 }
 
 // CreateOption allows to configure parameters of container creation.
@@ -63,4 +66,10 @@ type IOPipe struct {
 	Stdout   io.ReadCloser
 	Stderr   io.ReadCloser
 	Terminal bool // Whether stderr is connected on Windows
+}
+
+// ServerVersion contains version information as retrieved from the
+// server
+type ServerVersion struct {
+	containerd.GetServerVersionResponse
 }
